@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
 )
 
 type Response struct {
-	Code int `json:"code"`
-	Msg string `json:"msg"`
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
 	Data interface{} `json:"data,omitempty"`
 }
 
@@ -19,7 +20,7 @@ func UserLogin(writer http.ResponseWriter, request *http.Request) {
 	pwd := request.PostForm.Get("password")
 
 	loginOk := false
-	if (mobile == "15619258922" && pwd == "123456") {
+	if mobile == "15619258922" && pwd == "123456" {
 		loginOk = true
 	}
 
@@ -34,12 +35,12 @@ func UserLogin(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func Resp(w http.ResponseWriter, code int, data interface{}, msg string)  {
+func Resp(w http.ResponseWriter, code int, data interface{}, msg string) {
 
 	rsp := Response{
-		Code:code,
-		Msg:msg,
-		Data:data,
+		Code: code,
+		Msg:  msg,
+		Data: data,
 	}
 
 	ret, err := json.Marshal(rsp)
@@ -49,13 +50,25 @@ func Resp(w http.ResponseWriter, code int, data interface{}, msg string)  {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([] byte(ret))
+	w.Write([]byte(ret))
 }
 
 func main() {
 
 	http.HandleFunc("/user/login", UserLogin)
+	http.HandleFunc("/user/login.shtml", func(writer http.ResponseWriter, request *http.Request) {
+		tpl, err := template.ParseFiles("resources/view/user/login.html")
+		if err != nil {
+			log.Fatalf("parse tpl error %s", err)
+		}
+		tpl.ExecuteTemplate(writer, "/user/login.shtml", nil)
+	})
 
+	// static resource handle
+	http.Handle("/asset/", http.FileServer(http.Dir("./resources/")))
 	// start server
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatalf("start server err %s", err)
+	}
 }
