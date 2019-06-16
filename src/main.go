@@ -27,9 +27,18 @@ func main() {
 
 	http.HandleFunc("/user/login", controller.UserLogin)
 	http.HandleFunc("/user/register", controller.UserRegister)
+	http.HandleFunc("/contact/loadcommunity", controller.LoadCommunity)
+	http.HandleFunc("/contact/loadfriend", controller.LoadFriend)
+	http.HandleFunc("/contact/joincommunity", controller.JoinCommunity)
+	http.HandleFunc("/contact/createcommunity", controller.CreateCommunity)
+	//http.HandleFunc("/contact/addfriend", ctrl.Addfriend)
+	http.HandleFunc("/contact/addfriend", controller.Addfriend)
+	http.HandleFunc("/chat", controller.Chat)
+
 	RegisterView()
 	// static resource handle
 	http.Handle("/asset/", http.FileServer(http.Dir("./resources/")))
+	http.Handle("/mnt/", http.FileServer(http.Dir("./resources/")))
 	// start server
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {

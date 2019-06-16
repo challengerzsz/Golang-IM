@@ -39,5 +39,19 @@ func (userService *UserService) Register(mobile, plainPassword, nickName, avatar
 
 func (userService *UserService) Login(mobile, plainPassword string) (user model.User, err error) {
 
-	return user, nil
+	var tempUser model.User
+	DbEngine.Where("mobile = ?", mobile).Get(&tempUser)
+	if tempUser.Id == 0 {
+		return tempUser, errors.New("This user is not exits!")
+	}
+
+	if !util.ValidatePassword(plainPassword, tempUser.Salt, tempUser.Passwd) {
+		return tempUser, errors.New("Error password!")
+	}
+
+	str := fmt.Sprintf("%d", time.Now().Unix())
+	token := util.Md5Encode(str)
+	tempUser.Token = token
+	DbEngine.Id(tempUser.Id).Cols("token").Update(tempUser)
+	return tempUser, nil
 }

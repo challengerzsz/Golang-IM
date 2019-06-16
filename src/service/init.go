@@ -19,5 +19,5 @@ func init() {
 	DbEngine.ShowSQL(true)
 	DbEngine.SetMaxOpenConns(5)
 
-	DbEngine.Sync2(new(model.User))
+	DbEngine.Sync2(new(model.User), new(model.Contact), new(model.Community))
 }

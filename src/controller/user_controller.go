@@ -17,19 +17,11 @@ func UserLogin(writer http.ResponseWriter, request *http.Request) {
 	mobile := request.PostForm.Get("mobile")
 	pwd := request.PostForm.Get("passwd")
 
-	loginOk := false
-	if mobile == "15619258922" && pwd == "123456" {
-		loginOk = true
-	}
-
-	if loginOk {
-		data := make(map[string]interface{})
-		data["id"] = 1
-		data["token"] = "test"
-		util.RespSuccess(writer, data, "")
-
+	user, err := userService.Login(mobile, pwd)
+	if err != nil {
+		util.RespFail(writer, err.Error())
 	} else {
-		util.RespFail(writer, "pwd is not correct!")
+		util.RespSuccess(writer, user, "Login Success")
 	}
 }
 
